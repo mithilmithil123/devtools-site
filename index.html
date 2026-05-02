@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevTools - DocuMate & FlashForge</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* {box-sizing: border-box; margin: 0; padding: 0;}
+:root {
+  --bg: #0a0a0a;
+  --surface: #1a1a1a;
+  --surface-hover: #252525;
+  --text: #ffffff;
+  --text-dim: #a0a0a0;
+  --accent1: #00ff99;
+  --accent2: #00d9ff;
+  --accent3: #ff006e;
+  --border: rgba(0, 255, 153, 0.15);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 100%);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background: rgba(10, 10, 10, 0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent1);
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent1);
+  transition: width 0.3s;
+}
+.nav-links a:hover {
+  color: var(--accent1);
+}
+.nav-links a:hover::after,
+.nav-links a.active::after {
+  width: 100%;
+}
+.nav-links a.active {
+  color: var(--accent1);
+}
+
+.page {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.page.active {
+  display: block;
+  opacity: 1;
+}
+
+.home-hero {
+  margin-top: 6rem;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 5%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-grid {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background-image: 
+    linear-gradient(0deg, transparent 24%, rgba(0, 255, 153, 0.03) 25%, rgba(0, 255, 153, 0.03) 26%, transparent 27%, transparent 74%, rgba(0, 255, 153, 0.03) 75%, rgba(0, 255, 153, 0.03) 76%, transparent 77%),
+    linear-gradient(90deg, transparent 24%, rgba(0, 255, 153, 0.03) 25%, rgba(0, 255, 153, 0.03) 26%, transparent 27%, transparent 74%, rgba(0, 255, 153, 0.03) 75%, rgba(0, 255, 153, 0.03) 76%, transparent 77%);
+  background-size: 50px 50px;
+  animation: drift 20s linear infinite;
+}
+@keyframes drift {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+}
+.hero-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 1.5rem;
+}
+.hero-h1 {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+}
+.hero-p {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  line-height: 1.7;
+}
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 0.9rem 2rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  font-family: 'Inter', sans-serif;
+}
+.btn-primary {
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  color: #000;
+  box-shadow: 0 0 30px rgba(0, 255, 153, 0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 50px rgba(0, 255, 153, 0.5);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--accent2);
+  border: 2px solid var(--accent2);
+}
+.btn-secondary:hover {
+  background: rgba(0, 217, 255, 0.1);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  padding: 4rem 5%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.stat {
+  background: rgba(0, 255, 153, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.stat:hover {
+  border-color: var(--accent1);
+  transform: translateY(-5px);
+  background: rgba(0, 255, 153, 0.1);
+}
+.stat-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--accent1);
+  margin-bottom: 0.5rem;
+}
+.stat-label {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.products {
+  padding: 6rem 5%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.section-label {
+  font-family: 'Space Mono', monospace;
+  color: var(--accent3);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.section-title {
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.section-subtitle {
+  color: var(--text-dim);
+  font-size: 1rem;
+  margin-bottom: 3rem;
+  max-width: 600px;
+}
+.product-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 3rem;
+  margin-bottom: 3rem;
+  transition: all 0.3s;
+}
+.product-card:hover {
+  border-color: var(--accent1);
+  transform: translateY(-5px);
+}
+.product-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+@media (max-width: 900px) {
+  .product-header {
+    grid-template-columns: 1fr;
+  }
+}
+.product-icon {
+  font-size: 3rem;
+}
+.product-h3 {
+  font-size: 2rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.product-desc {
+  color: var(--text-dim);
+  font-size: 1rem;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+.product-features {
+  list-style: none;
+  margin-bottom: 2rem;
+}
+.product-features li {
+  color: var(--text-dim);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.product-features li::before {
+  content: '✓';
+  color: var(--accent1);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+.product-image {
+  background: linear-gradient(135deg, rgba(0, 255, 153, 0.1), rgba(0, 217, 255, 0.1));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  font-size: 4rem;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem 5%;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-top: 4rem;
+}
+
+.contact-wrap {
+  margin-top: 8rem;
+  padding: 4rem 5%;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.page-subtitle {
+  color: var(--text-dim);
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+.contact-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s;
+}
+.contact-card:hover {
+  border-color: var(--accent1);
+  transform: translateY(-5px);
+}
+.contact-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.contact-label {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+.contact-value {
+  color: var(--accent1);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+}
+.form-group {
+  margin-bottom: 1.5rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: var(--accent1);
+  background: rgba(0, 255, 153, 0.05);
+  outline: none;
+}
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.signup-wrap {
+  margin-top: 8rem;
+  padding: 4rem 5%;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.signup-notice {
+  background: rgba(0, 255, 153, 0.05);
+  border: 1px solid rgba(0, 255, 153, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+.notice-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.notice-text h4 {
+  color: var(--accent1);
+  margin-bottom: 0.3rem;
+  font-size: 0.95rem;
+}
+.notice-text p {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+.tool-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.tool-option {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.tool-option:hover {
+  border-color: var(--accent1);
+  transform: translateY(-5px);
+}
+.tool-option.selected {
+  border-color: var(--accent1);
+  background: rgba(0, 255, 153, 0.1);
+  box-shadow: 0 0 20px rgba(0, 255, 153, 0.2);
+}
+.tool-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.8rem;
+}
+.tool-name {
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+.tool-desc {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(5px);
+}
+.modal.show {
+  display: flex;
+}
+.modal-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2.5rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 2rem;
+  transition: color 0.3s;
+}
+.modal-close:hover {
+  color: var(--accent1);
+}
+.modal-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+}
+.modal-body {
+  color: var(--text-dim);
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+.modal-body h3 {
+  color: var(--accent1);
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+}
+.modal-body ul {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+.modal-body li {
+  margin-bottom: 0.5rem;
+}
+
+.success {
+  display: none;
+  background: rgba(0, 255, 153, 0.1);
+  border: 1px solid var(--accent1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+.success.show {
+  display: block;
+  animation: slideUp 0.5s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.success h3 {
+  color: var(--accent1);
+  margin-bottom: 0.5rem;
+}
+.success p {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo" onclick="showPage('home')">◆ DevTools</div>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')" id="nav-home" class="active">Home</a></li>
+    <li><a onclick="showPage('contact')" id="nav-contact">Contact</a></li>
+    <li><a onclick="showPage('signup')" id="nav-signup">Sign Up</a></li>
+  </ul>
+</nav>
+
+<div class="page active" id="page-home">
+  <div class="home-hero">
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-tag">Open Source Developer Tools</div>
+      <h1 class="hero-h1">Code Smarter.<br/>Build Faster.</h1>
+      <p class="hero-p">Professional tools for developers who value simplicity, speed, and control. Zero cost. Zero limits. Forever free.</p>
+      <div class="hero-buttons">
+        <button class="btn btn-primary" onclick="showPage('signup')">Get Started Free →</button>
+        <button class="btn btn-secondary" onclick="showPage('contact')">Learn More</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">2</div>
+      <div class="stat-label">Essential Tools</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Open Source</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">MIT</div>
+      <div class="stat-label">License</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Free Forever</div>
+    </div>
+  </div>
+
+  <div class="products">
+    <div class="section-label">Premium Features</div>
+    <div class="section-title">Our Tools</div>
+    <div class="section-subtitle">Carefully crafted solutions for real problems developers face every day.</div>
+
+    <div class="product-card">
+      <div class="product-header">
+        <div>
+          <div class="product-icon">⚡</div>
+          <h3 class="product-h3">DocuMate</h3>
+          <p class="product-desc">AI-powered code documentation in seconds. Write docs that actually match your code.</p>
+          <ul class="product-features">
+            <li>Supports 50+ programming languages</li>
+            <li>Generates professional README files</li>
+            <li>API documentation auto-generation</li>
+            <li>Markdown & HTML export</li>
+            <li>100% local processing (Ollama)</li>
+            <li>No cloud, no tracking, no BS</li>
+          </ul>
+          <button class="btn btn-primary" onclick="showPage('signup')">Try DocuMate Free →</button>
+        </div>
+        <div class="product-image">📚</div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-header">
+        <div>
+          <div class="product-icon">🔥</div>
+          <h3 class="product-h3">FlashForge</h3>
+          <p class="product-desc">Create bootable USB drives faster than ever before. Works on Linux, Windows, and macOS.</p>
+          <ul class="product-features">
+            <li>Support for any ISO file format</li>
+            <li>Automatic USB drive detection</li>
+            <li>Real-time progress tracking</li>
+            <li>Integrity verification built-in</li>
+            <li>Lightning-fast write speeds</li>
+            <li>Super user-friendly interface</li>
+          </ul>
+          <button class="btn btn-primary" onclick="showPage('signup')">Try FlashForge Free →</button>
+        </div>
+        <div class="product-image">💿</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>© DevTools 2026 @original | MIT License | Free Forever</footer>
+</div>
+
+<div class="page" id="page-contact">
+  <div class="contact-wrap">
+    <div class="section-label">Get In Touch</div>
+    <h2 class="page-title">Contact Us</h2>
+    <p class="page-subtitle">Questions? Found a bug? Want to collaborate? We'd love to hear from you.</p>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="contact-icon">📧</div>
+        <div class="contact-label">Email</div>
+        <div class="contact-value">hello@devtools.dev</div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon">🐙</div>
+        <div class="contact-label">GitHub</div>
+        <div class="contact-value">@devtools</div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon">🐦</div>
+        <div class="contact-label">Twitter</div>
+        <div class="contact-value">@devtools_dev</div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon">⚡</div>
+        <div class="contact-label">Response Time</div>
+        <div class="contact-value">24 hours</div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" id="c-fname" placeholder="John">
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" id="c-lname" placeholder="Doe">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="c-email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label>Topic</label>
+        <select id="c-topic">
+          <option value="">Select a topic...</option>
+          <option>Bug Report</option>
+          <option>Feature Request</option>
+          <option>Partnership</option>
+          <option>General Question</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea id="c-msg" placeholder="Tell us what's on your mind..."></textarea>
+      </div>
+      <button class="btn btn-primary" style="width: 100%;" onclick="submitContact()">Send Message →</button>
+      <div class="success" id="contact-success">
+        <h3>✓ Message sent!</h3>
+        <p>Thanks for reaching out. We'll respond within 24 hours.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>© DevTools 2026 @original | MIT License | Free Forever</footer>
+</div>
+
+<div class="page" id="page-signup">
+  <div class="signup-wrap">
+    <div class="signup-notice">
+      <div class="notice-icon">ℹ️</div>
+      <div class="notice-text">
+        <h4>100% Free & Open Source</h4>
+        <p>No credit card. No ads. No tracking. Full source code on GitHub. Use it however you want.</p>
+      </div>
+    </div>
+
+    <div class="section-label">Create Account</div>
+    <h2 class="page-title">Get Started Free</h2>
+
+    <div class="form-card">
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" id="s-fname" placeholder="John">
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" id="s-lname" placeholder="Doe">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="s-email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="s-user" placeholder="developer_pro">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="s-pass" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <label>Which tool are you most interested in?</label>
+        <div class="tool-picker">
+          <div class="tool-option" id="pick-doc" onclick="pickTool('doc')">
+            <div class="tool-icon">⚡</div>
+            <div class="tool-name">DocuMate</div>
+            <div class="tool-desc">AI Documentation</div>
+          </div>
+          <div class="tool-option" id="pick-flash" onclick="pickTool('flash')">
+            <div class="tool-icon">🔥</div>
+            <div class="tool-name">FlashForge</div>
+            <div class="tool-desc">USB Creator</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="submitSignup()">Create Account →</button>
+      <div class="success" id="signup-success">
+        <h3>✓ Welcome aboard!</h3>
+        <p>Your account is ready. Check your email to verify and get started.</p>
+      </div>
+    </div>
+
+    <p style="text-align: center; color: var(--text-dim); margin-top: 2rem; font-size: 0.85rem;">
+      By signing up, you agree to our <a onclick="openModal('privacy')" style="color: var(--accent1); cursor: pointer; text-decoration: none;">Privacy Policy</a> and <a onclick="openModal('terms')" style="color: var(--accent1); cursor: pointer; text-decoration: none;">Terms of Service</a>
+    </p>
+  </div>
+
+  <footer>© DevTools 2026 @original | MIT License | Free Forever</footer>
+</div>
+
+<div class="modal" id="privacy-modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('privacy')">✕</button>
+    <h2 class="modal-title">Privacy Policy</h2>
+    <div class="modal-body">
+      <p><strong>Last updated: April 2026</strong></p>
+      <h3>We Respect Your Privacy</h3>
+      <p>DevTools collects minimal data and we never sell it. Your data is yours alone.</p>
+      <h3>What We Collect</h3>
+      <ul>
+        <li>Account information (name, email, username)</li>
+        <li>How you use our tools</li>
+        <li>Messages you send us</li>
+      </ul>
+      <h3>How We Use It</h3>
+      <ul>
+        <li>To provide and improve our services</li>
+        <li>To respond to your messages</li>
+        <li>To understand usage patterns</li>
+      </ul>
+      <h3>Data Storage</h3>
+      <p>Your code stays on your machine when using DocuMate and FlashForge. Account data is encrypted and stored securely.</p>
+      <h3>Your Rights</h3>
+      <p>You can delete your account and all data anytime. Email us at hello@devtools.dev to request deletion.</p>
+      <button class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;" onclick="closeModal('privacy')">I Understand</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="terms-modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('terms')">✕</button>
+    <h2 class="modal-title">Terms of Service</h2>
+    <div class="modal-body">
+      <p><strong>Last updated: April 2026</strong></p>
+      <h3>Simple Terms</h3>
+      <p>Use our tools responsibly. Don't be a jerk. That's basically it.</p>
+      <h3>License</h3>
+      <p>DevTools is open source under the MIT License. You can use, modify, and distribute it freely.</p>
+      <h3>Usage Rules</h3>
+      <ul>
+        <li>Don't use for illegal activities</li>
+        <li>Don't try to hack or damage our systems</li>
+        <li>Don't spam or harass others</li>
+        <li>Don't reverse-engineer security measures</li>
+      </ul>
+      <h3>Warranty</h3>
+      <p>DevTools is provided "as-is" with no warranties. We're not responsible for any damages from using our tools.</p>
+      <h3>Changes</h3>
+      <p>We may update these terms anytime. Continued use means you accept the changes.</p>
+      <button class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;" onclick="closeModal('terms')">I Accept</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function openModal(type) {
+  document.getElementById(type + '-modal').classList.add('show');
+}
+
+function closeModal(type) {
+  document.getElementById(type + '-modal').classList.remove('show');
+}
+
+function pickTool(tool) {
+  document.getElementById('pick-doc').classList.remove('selected');
+  document.getElementById('pick-flash').classList.remove('selected');
+  if (tool === 'doc') document.getElementById('pick-doc').classList.add('selected');
+  if (tool === 'flash') document.getElementById('pick-flash').classList.add('selected');
+}
+
+function submitContact() {
+  const email = document.getElementById('c-email').value;
+  const msg = document.getElementById('c-msg').value;
+  if (!email || !msg) { alert('Please fill all fields'); return; }
+  
+  fetch('/api/contact', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      fname: document.getElementById('c-fname').value,
+      lname: document.getElementById('c-lname').value,
+      email: email,
+      topic: document.getElementById('c-topic').value,
+      message: msg
+    })
+  }).then(() => {
+    document.getElementById('contact-success').classList.add('show');
+  }).catch(err => alert('Error sending message'));
+}
+
+function submitSignup() {
+  const email = document.getElementById('s-email').value;
+  const pass = document.getElementById('s-pass').value;
+  if (!email || !pass) { alert('Please fill all fields'); return; }
+  
+  fetch('/api/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      fname: document.getElementById('s-fname').value,
+      lname: document.getElementById('s-lname').value,
+      email: email,
+      username: document.getElementById('s-user').value,
+      password: pass
+    })
+  }).then(() => {
+    document.getElementById('signup-success').classList.add('show');
+  }).catch(err => alert('Error creating account'));
+}
+</script>
+</body>
+</html>
